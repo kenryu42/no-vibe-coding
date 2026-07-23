@@ -1,0 +1,51 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
+	(a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
+);
+const formatDate = (date: Date) =>
+	new Intl.DateTimeFormat('en', { dateStyle: 'long', timeZone: 'UTC' }).format(date);
+---
+
+<BaseLayout>
+	<section class="shell hero" aria-labelledby="hero-title">
+		<p class="eyebrow">Agentic development with evidence.</p>
+		<h1 id="hero-title">No Vibe Coding</h1>
+		<p class="hero-copy">
+			Field notes, experiments, and practical patterns for building software with coding
+			agents—without outsourcing judgment.
+		</p>
+	</section>
+
+	<section class="shell writing" aria-labelledby="writing-title">
+		<div class="section-heading">
+			<h2 id="writing-title">Latest writing</h2>
+			<a href="/rss.xml">Follow via RSS</a>
+		</div>
+
+		<div class="post-list">
+			{
+				posts.map((post) => (
+					<article class="post-card">
+						<p class="post-meta">
+							<time datetime={post.data.publishedAt.toISOString()}>
+								{formatDate(post.data.publishedAt)}
+							</time>
+						</p>
+						<h3>
+							<a href={`/posts/${post.id}/`}>{post.data.title}</a>
+						</h3>
+						<p>{post.data.description}</p>
+						{post.data.tags.length > 0 && (
+							<ul class="tag-list" aria-label="Topics">
+								{post.data.tags.map((tag) => <li>{tag.replaceAll('-', ' ')}</li>)}
+							</ul>
+						)}
+					</article>
+				))
+			}
+		</div>
+	</section>
+</BaseLayout>

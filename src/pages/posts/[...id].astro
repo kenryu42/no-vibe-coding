@@ -1,0 +1,56 @@
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('posts', ({ data }) => !data.draft);
+
+	return posts.map((post) => ({
+		params: { id: post.id },
+		props: { post },
+	}));
+}
+
+interface Props {
+	post: CollectionEntry<'posts'>;
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const formatDate = (date: Date) =>
+	new Intl.DateTimeFormat('en', { dateStyle: 'long', timeZone: 'UTC' }).format(date);
+---
+
+<BaseLayout
+	title={post.data.title}
+	description={post.data.description}
+	type="article"
+	publishedAt={post.data.publishedAt}
+	updatedAt={post.data.updatedAt}
+>
+	<article class="shell article">
+		<header class="article-header">
+			<a class="back-link" href="/">← All writing</a>
+			<h1>{post.data.title}</h1>
+			<p class="article-description">{post.data.description}</p>
+			<p class="post-meta">
+				Published <time datetime={post.data.publishedAt.toISOString()}>
+					{formatDate(post.data.publishedAt)}
+				</time>
+				{
+					post.data.updatedAt && (
+						<>
+							{' · Updated '}
+							<time datetime={post.data.updatedAt.toISOString()}>
+								{formatDate(post.data.updatedAt)}
+							</time>
+						</>
+					)
+				}
+			</p>
+		</header>
+		<div class="prose">
+			<Content />
+		</div>
+	</article>
+</BaseLayout>

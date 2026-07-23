@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+	title="Page not found"
+	description="The requested page could not be found."
+	noindex={true}
+>
+	<section class="shell not-found">
+		<p class="eyebrow">404</p>
+		<h1>That page doesn’t exist.</h1>
+		<p>It may have moved, or the link may be incorrect.</p>
+		<a href="/">Return to the writing</a>
+	</section>
+</BaseLayout>

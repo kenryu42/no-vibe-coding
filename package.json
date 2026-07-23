@@ -1,0 +1,35 @@
+{
+  "name": "no-vibe-coding",
+  "type": "module",
+  "version": "0.0.1",
+  "packageManager": "bun@1.3.14",
+  "engines": {
+    "bun": ">=1.3.14"
+  },
+  "scripts": {
+    "dev": "bunx --bun astro dev",
+    "build": "bunx --bun astro build",
+    "check": "bun run lint && bun run typecheck && bun run knip && bun run cpd && bun run build",
+    "cpd": "cpd --no-tips",
+    "format": "bunx --bun biome format --write .",
+    "knip": "bunx --bun knip",
+    "lint": "bunx --bun biome check .",
+    "preview": "bunx --bun astro preview",
+    "astro": "bunx --bun astro",
+    "typecheck": "bunx --bun astro check"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^7.0.3",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^7.1.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@biomejs/biome": "^2.5.5",
+    "@types/node": "^26.1.1",
+    "cpd": "^5.0.13",
+    "knip": "^6.29.0",
+    "typescript": "^6.0.3"
+  }
+}

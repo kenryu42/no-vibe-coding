@@ -1,0 +1,177 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title?: string;
+	description?: string;
+	type?: 'website' | 'article';
+	publishedAt?: Date;
+	updatedAt?: Date;
+	noindex?: boolean;
+}
+
+const {
+	title,
+	description = 'Field notes, experiments, and practical patterns for building software with coding agents—without outsourcing judgment.',
+	type = 'website',
+	publishedAt,
+	updatedAt,
+	noindex = false,
+} = Astro.props;
+
+const siteName = 'No Vibe Coding';
+const pageTitle = title
+	? `${title} — ${siteName}`
+	: `${siteName} — Agentic development with evidence.`;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const rssURL = new URL('/rss.xml', Astro.site);
+const structuredData =
+	type === 'article'
+		? {
+				'@context': 'https://schema.org',
+				'@type': 'BlogPosting',
+				headline: title,
+				description,
+				datePublished: publishedAt?.toISOString(),
+				dateModified: (updatedAt ?? publishedAt)?.toISOString(),
+				mainEntityOfPage: canonicalURL.href,
+				author: {
+					'@type': 'Organization',
+					name: siteName,
+					url: Astro.site?.href,
+				},
+			}
+		: {
+				'@context': 'https://schema.org',
+				'@type': 'WebSite',
+				name: siteName,
+				description,
+				url: Astro.site?.href,
+			};
+const serializedStructuredData = JSON.stringify(structuredData).replaceAll('<', '\\u003c');
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="theme-color" content="#f4f1e9" />
+		<script is:inline>
+			(() => {
+				let theme = null;
+
+				try {
+					theme = localStorage.getItem('theme');
+				} catch {
+					// Use the system preference when storage is unavailable.
+				}
+
+				if (theme !== 'light' && theme !== 'dark') {
+					theme = window.matchMedia('(prefers-color-scheme: dark)').matches
+						? 'dark'
+						: 'light';
+				}
+
+				document.documentElement.dataset.theme = theme;
+				document.documentElement.style.colorScheme = theme;
+				document
+					.querySelector('meta[name="theme-color"]')
+					?.setAttribute('content', theme === 'dark' ? '#171714' : '#f4f1e9');
+			})();
+		</script>
+		<title>{pageTitle}</title>
+		<meta name="description" content={description} />
+		<meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+		<link rel="canonical" href={canonicalURL} />
+		<link rel="alternate" type="application/rss+xml" title={siteName} href={rssURL} />
+
+		<meta property="og:type" content={type} />
+		<meta property="og:site_name" content={siteName} />
+		<meta property="og:title" content={title ?? siteName} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonicalURL} />
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:title" content={title ?? siteName} />
+		<meta name="twitter:description" content={description} />
+
+		{
+			type === 'article' && publishedAt && (
+				<meta property="article:published_time" content={publishedAt.toISOString()} />
+			)
+		}
+		{
+			type === 'article' && updatedAt && (
+				<meta property="article:modified_time" content={updatedAt.toISOString()} />
+			)
+		}
+		<script type="application/ld+json" set:html={serializedStructuredData} is:inline />
+	</head>
+	<body>
+		<a class="skip-link" href="#main-content">Skip to content</a>
+		<header class="site-header">
+			<div class="shell header-inner">
+				<a class="site-name" href="/">No Vibe Coding</a>
+				<div class="header-actions">
+					<nav aria-label="Primary">
+						<a href="/">Writing</a>
+						<a href="/rss.xml">RSS</a>
+					</nav>
+					<button class="theme-toggle" type="button" hidden>
+						<span aria-hidden="true">◐</span>
+						<span data-theme-label>Dark</span>
+					</button>
+				</div>
+			</div>
+		</header>
+
+		<main id="main-content">
+			<slot />
+		</main>
+
+		<footer class="site-footer">
+			<div class="shell footer-inner">
+				<p>Agentic development with evidence.</p>
+				<p>© {new Date().getFullYear()} No Vibe Coding</p>
+			</div>
+		</footer>
+		<script>
+			const themeToggle = document.querySelector<HTMLButtonElement>('.theme-toggle');
+			const themeLabel = themeToggle?.querySelector<HTMLElement>('[data-theme-label]');
+			const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+
+			function updateThemeToggle(theme: 'light' | 'dark') {
+				if (!themeToggle || !themeLabel) {
+					return;
+				}
+
+				const nextTheme = theme === 'dark' ? 'light' : 'dark';
+				themeToggle.hidden = false;
+				themeToggle.ariaPressed = String(theme === 'dark');
+				themeToggle.ariaLabel = `Switch to ${nextTheme} mode`;
+				themeToggle.title = `Switch to ${nextTheme} mode`;
+				themeLabel.textContent = nextTheme === 'dark' ? 'Dark' : 'Light';
+			}
+
+			const currentTheme = document.documentElement.dataset.theme;
+			updateThemeToggle(currentTheme === 'dark' ? 'dark' : 'light');
+
+			themeToggle?.addEventListener('click', () => {
+				const nextTheme =
+					document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+
+				document.documentElement.dataset.theme = nextTheme;
+				document.documentElement.style.colorScheme = nextTheme;
+				themeColor?.setAttribute('content', nextTheme === 'dark' ? '#171714' : '#f4f1e9');
+				updateThemeToggle(nextTheme);
+
+				try {
+					localStorage.setItem('theme', nextTheme);
+				} catch {
+					// The selected theme still applies for the current page.
+				}
+			});
+		</script>
+	</body>
+</html>

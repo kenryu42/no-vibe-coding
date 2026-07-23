@@ -1,0 +1,10 @@
+{
+  "path": ["./src"],
+  "format": ["astro", "typescript", "javascript", "css"],
+  "reporters": ["ai", "threshold"],
+  "minLines": 5,
+  "minTokens": 50,
+  "threshold": 0,
+  "gitignore": true,
+  "mode": "mild"
+}
