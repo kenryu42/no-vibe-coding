@@ -61,3 +61,13 @@ After the first deployment, attach `novibecoding.com` as the custom domain. The 
 site URL is configured in `astro.config.mjs`.
 
 The build generates static article pages, `rss.xml`, `robots.txt`, and sitemap files.
+
+## License
+
+The website source code is available under the [MIT License](LICENSE).
+
+Articles in `src/content/posts/` are excluded from the MIT License. They are
+copyright © 2026 J Liew, with permission for attributed short quotations as
+described in the [content license](CONTENT-LICENSE.md).
+
+The No Vibe Coding name and branding are not included in either license.
